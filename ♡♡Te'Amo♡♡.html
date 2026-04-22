@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+<title>Cristian te ama❤️</title>
+<style>
+ html, body { margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; background: #000; font-family: Arial, sans-serif; }
+ canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+ #intro { position: fixed; inset: 0; background: radial-gradient(circle, #ff7ab8 0%, #c01c5a 80%); display: flex; justify-content: center; align-items: center; z-index: 50; transition: opacity 1s; }
+ #fondoCorazones { position: absolute; inset: 0; z-index: 1; }
+ .heartFloat { position: absolute; font-size: clamp(22px, 6vmin, 40px); animation: float 8s linear infinite; opacity: 0; bottom: -10vh; }
+ @keyframes float {
+  0% { transform: translateY(0) translateX(0) scale(1.8); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(-100vh) translateX(15px) scale(2.7); opacity: 0; }
+ }
+ #startBtn { padding: 0.9em 2.2em; font-size: clamp(20px, 4.5vw, 23px); font-weight: bold; color: white; background: #000; border: none; border-radius: 18px; cursor: pointer; z-index: 5; position: relative; box-shadow: 0 0 25px rgba(255,0,80,0.6); animation: latido 1.3s infinite ease-in-out; }
+ @keyframes latido { 0% { transform: scale(1); } 35% { transform: scale(1.15); } 100% { transform: scale(1); } }
+ #lyrics-container { position: fixed; bottom: 15%; width: 100%; text-align: center; z-index: 999999; pointer-events: none; }
+ #lyrics { color: white; font-size: clamp(18px, 4.5vw, 28px); text-shadow: 0 0 10px #ff1070, 0 0 20px #ff1070; font-weight: bold; opacity: 0; transition: opacity 0.3s; padding: 0 20px; }
+ #fireworksCanvas { position: fixed; inset: 0; pointer-events: none; z-index: 99999; }
+  #firma {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: 'Arial', sans-serif;
+  font-size: 16px;
+  z-index: 1000000;
+  pointer-events: none;
+  text-shadow: 0 0 5px rgba(255, 105, 180, 0.5);
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+ }
+ #firma span {
+  color: #ff4d94;
+  animation: latidoFirma 1.5s infinite;
+ }
+ @keyframes latidoFirma {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+ }
+</style>
+</head>
+<body>
+
+<audio id="musica">
+  <source src="https://cdn.discordapp.com/attachments/935636578842320970/1496387375671148594/KRIS_R_POLOS_OPUESTOS_VIDEO_OFICIAL.mp3?ex=69e9b2d7&is=69e86157&hm=7f589ecc70fe034fcf8aa720e075943240b3ec67fbbda42d315120935a63fecd&" type="audio/mpeg">
+</audio>
+
+<div id="intro">
+  <div id="fondoCorazones"></div>
+  <button id="startBtn">💖 Siempre pienso en ti 💖</button>
+</div>
+
+<div id="lyrics-container"><div id="lyrics"></div></div>
+<canvas id="canvas"></canvas>
+<canvas id="fireworksCanvas"></canvas>
+
+<div id="firma">Cristian x Mariam <span>❤️</span></div>
+
+<script>
+const musica = document.getElementById("musica");
+const lyricsDiv = document.getElementById("lyrics");
+let musicStarted = false;
+
+const lyricData = [
+  { t: 0.5, txt: "Sube el volumen... ❤️" },
+  { t: 4, txt: "Escucha lo que siento por ti..." },
+  { t: 9, txt: "Sus labiecitos me gustan y cuando ella tierna me habla" },
+  { t: 12, txt: "El pelo largo le llega hasta las nalgas" },
+  { t: 15, txt: "Loco de verla, loco de besarla💋" },
+  { t: 17, txt: "Ya llegué a tu unidad, estoy esperando a que salgas" },
+  { t: 20., txt: "Ahora mismo prendí un bareto, y me puse a pensar en ti como un loco" },
+  { t: 23.5, txt: "Escalofríos siempre que la toco" },
+  { t: 25.5, txt: "Le tomé par de fotos, besitos en el cuello y se lo coloco" },
+  { t: 28.5, txt: "Un baretico y el rosecito en la moto" },
+  { t: 31, txt: "Y es una vuelta obvia, me gusta aunque todavía no sea mi novia" },
+  { t: 34, txt: "Somos fletes, ya quiero que sea mi polla, mi gatita oficial👰" },
+  { t: 37, txt: "No sé al final cómo esto vaya a terminar" },
+  { t: 39.2, txt: "Pero qué hijueputas, mami, hay que confiar" },
+  { t: 41.5, txt: "A veces hacemos el amor y otras veces solamente pide sexo" },
+  { t: 45, txt: "Respóndeme los textos, yo pongo a sobrar el resto" },
+  { t: 47.5, txt: "Pa que no te rayes y no me saques pretexto" },
+  { t: 50, txt: "Tu ex que se quede quieto, que te lo acuesto" },
+  { t: 52, txt: "Ese bobo no es como yo" },
+  { t: 53.5, txt: "Y como tú, mami, tampoco hay nadie" },
+  { t: 55.5, txt: "El que a ti te canta bonito y le canta a la calle" },
+  { t: 58, txt: "El que a ti te enamora hasta con el más mínimo detalle" },
+  { t: 60.5, txt: "Si la vida nos volvió a juntar, mami, imposible que falle" },
+  { t: 63, txt: "Es difícil de entendeeeeeer lo que tú tienes conmigo" },
+  { t: 68, txt: "Pero es más difícil explicar lo chimba que nos sentimos✨" },
+  { t: 73, txt: "Y es que no logro entendeeeeer la conexión que tuvimos" },
+  { t: 79, txt: "Y es que después de esa noche de ayer siento que más nos unimos" },
+  { t: 84, txt: "Me siento como en el colegio, mandándote cartas pa impresionarte💌" },
+  { t: 87.5, txt: "Y chocolates para conquistarte" },
+  { t: 89.5, txt: "Y tal vez vernos es difícil" },
+  { t: 90.5, txt: "No tengo carro, mami, voy en bici" },
+  { t: 92.5, txt: "Quería hacerte un tema y le dije a Deezy" },
+  { t: 95, txt: "Que me abra el Pro Tools" },
+  { t: 96., txt: "Un amor de colegio, un amor de school" },
+  { t: 98., txt: "Tu corazón lo tengo guardadito en un baúl" },
+  { t: 100.5, txt: "Pa que nadie lo toque, pa que nadie pueda hacerle daño" },
+  { t: 103.5, txt: "Te fuiste hace par de minutos, mami, siento que te extraño" },
+  { t: 106, txt: "Mi amor, ¿esto es real?, ¿o vos no te sentís igual?" },
+  { t: 108.5, txt: "Somos polos opuestos y también somos tal para cual" },
+  { t: 111.5, txt: "Yo voy a estar pa ti, mami, siempre que tú te sientas mal" },
+  { t: 114, txt: "Por eso nunca dudes, mami, en llamar📲" },
+  { t: 116.5, txt: "Que yo soy pa ti, si tú me dices que estás puesta" },
+  { t: 119.5, txt: "Dime si piensas en mí cuando te acuestas" },
+  { t: 121, txt: "Por que yo sí, y no te dejo de pensar ni un segundo" },
+  { t: 124.8, txt: "Mami estoy ahorrando pa comprarte el mundo" },
+  { t: 127, txt: "Sus labiecitos me gustan y cuando ella tierna me habla" },
+  { t: 130, txt: "El pelo largo le llega hasta las nalgas" },
+  { t: 132.5, txt: "Loco de verla, loco de besarla💋" },
+  { t: 134.7, txt: "Ya llegué a tu unidad, estoy esperando a que salgas" },
+  { t: 137.5, txt: "Es difícil de entendeeeeer lo que tú tienes conmigo" },
+  { t: 143, txt: "Pero es más difícil explicar lo chimba que nos sentimos" },
+  { t: 148, txt: "Y es que no logro entendeeeeer la conexión que tuvimos" },
+  { t: 154, txt: "Y es que después de esa noche de ayer siento que más nos unimos" },
+];
+
+function updateLyrics() {
+  if (!musicStarted) return;
+  const time = musica.currentTime;
+  const line = lyricData.findLast(l => time >= l.t);
+  if (line && lyricsDiv.textContent !== line.txt) {
+    lyricsDiv.style.opacity = 0;
+    setTimeout(() => {
+      lyricsDiv.textContent = line.txt;
+      lyricsDiv.style.opacity = 1;
+    }, 200);
+  }
+}
+
+const fondo = document.getElementById("fondoCorazones");
+for (let i = 0; i < 25; i++) {
+  let h = document.createElement("div");
+  h.className = "heartFloat"; h.textContent = "❤️";
+  h.style.left = Math.random() * 100 + "vw";
+  h.style.animationDelay = (Math.random() * 5) + "s";
+  fondo.appendChild(h);
+}
+
+const fwCanvas = document.getElementById("fireworksCanvas");
+const fwCtx = fwCanvas.getContext("2d");
+let fireworks = [];
+function resizeFW() { fwCanvas.width = window.innerWidth; fwCanvas.height = window.innerHeight; }
+window.addEventListener("resize", resizeFW);
+resizeFW();
+
+function createFirework() {
+  const x = Math.random() * fwCanvas.width;
+  const y = Math.random() * fwCanvas.height * 0.4 + fwCanvas.height * 0.2;
+  const colors = ["hsl(330,100%,60%)", "hsl(350,100%,65%)", "hsl(300,100%,70%)", "hsl(10,100%,70%)"];
+  for (let i = 0; i < 80; i++) {
+    fireworks.push({
+      x, y, angle: Math.random() * Math.PI * 2,
+      speed: Math.random() * 4 + 2.5,
+      radius: Math.random() * 3 + 1.5,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      alpha: 1, 
+      decay: Math.random() * 0.022 + 0.01 // Desvanecimiento rápido para limpiar pantalla
+    });
+  }
+}
+
+function updateFireworks() {
+  fwCtx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
+  updateLyrics();
+  fireworks = fireworks.filter(f => f.alpha > 0);
+  fireworks.forEach(f => {
+    f.x += Math.cos(f.angle) * f.speed; f.y += Math.sin(f.angle) * f.speed;
+    f.alpha -= f.decay;
+    fwCtx.globalAlpha = Math.max(0, f.alpha); fwCtx.fillStyle = f.color;
+    const size = f.radius * 1; // Tamaño del corazón
+    fwCtx.beginPath();
+    fwCtx.moveTo(f.x, f.y + size / 4);
+    fwCtx.bezierCurveTo(f.x, f.y, f.x - size, f.y, f.x - size, f.y + size / 2);
+    fwCtx.bezierCurveTo(f.x - size, f.y + size, f.x, f.y + size * 1.25, f.x, f.y + size * 1.5);
+    fwCtx.bezierCurveTo(f.x, f.y + size * 1.25, f.x + size, f.y + size, f.x + size, f.y + size / 2);
+    fwCtx.bezierCurveTo(f.x + size, f.y, f.x, f.y, f.x, f.y + size / 4);
+    fwCtx.fill();
+  });
+  requestAnimationFrame(updateFireworks);
+}
+updateFireworks();
+
+function launchCelebration() {
+  for (let i = 0; i < 10; i++) { setTimeout(createFirework, i * 250); }
+  setTimeout(launchCelebration, 2000); 
+}
+
+function startAnimation() {
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+  let cx, cy, scale, t = 0, heartPoints = [], pulse = 0, phase = "heart";
+  let textPoints = [], textParticles = [], fireworksStarted = false;
+
+  function resize() {
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    cx = canvas.width / 2; cy = canvas.height / 2;
+    scale = Math.min(canvas.width, canvas.height) / 50;
+  }
+  window.addEventListener("resize", resize);
+  resize();
+
+  function heartPoint(t, s = scale) {
+    const x = s * 16 * Math.pow(Math.sin(t), 3);
+    const y = -s * (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+    return { x, y };
+  }
+
+  function generateTextPoints() {
+    const off = document.createElement("canvas");
+    off.width = 300; off.height = 120;
+    const octx = off.getContext("2d");
+    octx.fillStyle = "white"; octx.font = "bold 80px Arial";
+    octx.textAlign = "center"; octx.textBaseline = "middle";
+    octx.fillText("TE AMO", 150, 60);
+    const data = octx.getImageData(0, 0, 300, 120).data;
+    for (let y = 0; y < 120; y += 4) {
+      for (let x = 0; x < 300; x += 4) {
+        if (data[(y * 300 + x) * 4 + 3] > 128) 
+          textPoints.push({ x: (x - 150) * (scale * 0.15), y: (y - 60) * (scale * 0.15) - scale * 0.5 });
+      }
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.scale(1 + 0.015 * Math.sin(pulse * 0.1), 1 + 0.015 * Math.sin(pulse * 0.1));
+
+   if (phase === "heart") {
+      const { x, y } = heartPoint(t);
+      heartPoints.push({ x, y, age: 0 }); // Añadimos edad para animar el rastro
+
+      // 1. Efecto de resplandor (Glow) dinámico
+      ctx.shadowBlur = 15 + Math.sin(pulse * 0.1) * 10;
+      ctx.shadowColor = "rgba(255, 20, 147, 0.8)";
+
+      // 2. Dibujar estela de "polvo de estrellas"
+      heartPoints.forEach((p, i) => {
+        p.age += 0.5;
+        let opacity = Math.max(0, 1 - p.age / 40);
+        ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+        // Pequeños destellos que flotan alrededor de la línea
+        if (i % 2 === 0) {
+          ctx.beginPath();
+          ctx.arc(p.x + Math.sin(p.age * 0.2) * 3, p.y + Math.cos(p.age * 0.2) * 3, 1.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+
+      // 3. Dibujar la línea principal con degradado
+      ctx.beginPath();
+      ctx.strokeStyle = "rgba(255, 105, 180, 1)";
+      ctx.lineWidth = 3;
+      ctx.lineCap = "round";
+      for (let i = 0; i < heartPoints.length - 1; i++) {
+        ctx.moveTo(heartPoints[i].x, heartPoints[i].y);
+        ctx.lineTo(heartPoints[i + 1].x, heartPoints[i + 1].y);
+      }
+      ctx.stroke();
+
+      // 4. La "punta" del dibujo (el pincel mágico)
+      ctx.fillStyle = "white";
+      ctx.shadowBlur = 25;
+      ctx.beginPath();
+      ctx.arc(x, y, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      t += 0.035; // Velocidad de dibujo
+      if (t >= Math.PI * 2 + 0.1) { 
+        phase = "text"; 
+        generateTextPoints();
+        textParticles = textPoints.map((p) => {
+          const angle = Math.random() * Math.PI * 2; const sp = Math.random() * 1.5 + 0.5;
+          return { x: 0, y: 0, tx: p.x, ty: p.y, vx: Math.cos(angle) * sp, vy: Math.sin(angle) * sp, arrived: false, life: 0, hue: 330 + Math.random() * 40 };
+        });
+      }
+    } 
+    else if (phase === "text") {
+      ctx.beginPath(); ctx.strokeStyle = "rgba(255,105,180,1)"; ctx.lineWidth = 2;
+      for (let i = 0; i < heartPoints.length - 1; i++) {
+        ctx.moveTo(heartPoints[i].x, heartPoints[i].y); ctx.lineTo(heartPoints[i + 1].x, heartPoints[i + 1].y);
+      }
+      ctx.stroke();
+      let arrivedAll = true;
+      for (let p of textParticles) {
+        if (!p.arrived) {
+          arrivedAll = false;
+          p.x += (p.tx - p.x) * 0.12 + p.vx * 0.05;
+          p.y += (p.ty - p.y) * 0.12 + p.vy * 0.05;
+          if (Math.hypot(p.x - p.tx, p.y - p.ty) < scale * 1.5) p.arrived = true;
+        } else { p.life++; }
+        ctx.beginPath(); ctx.shadowBlur = 6; ctx.shadowColor = `hsl(${p.hue},100%,70%)`;
+        ctx.fillStyle = `hsl(${p.hue},100%,${60 + 25 * Math.sin(p.life * 0.15)}%)`;
+        ctx.arc(p.x, p.y, 3.1, 0, Math.PI * 2); ctx.fill();
+      }
+      if (arrivedAll && !fireworksStarted) { fireworksStarted = true; launchCelebration(); }
+    }
+    ctx.restore();
+    pulse++;
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+document.getElementById("startBtn").addEventListener("click", () => {
+  document.getElementById("intro").style.opacity = "0";
+  musica.play();
+  musicStarted = true;
+  setTimeout(() => { document.getElementById("intro").style.display = "none"; startAnimation(); }, 1000);
+});
+</script>
+</body>
+</html>
